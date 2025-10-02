@@ -1,0 +1,9 @@
+services:
+  db:
+   image: "postgres:17.0"
+   environment:
+    POSTGRES_USER: firstservice
+    POSTGRES_PASSWORD: firstservice
+    POSTGRES_DB: db_first_service
+   ports:
+     - "5432:5432"
