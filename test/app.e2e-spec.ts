@@ -72,6 +72,7 @@ describe('AppController (e2e)', () => {
     const data = {name: "test", email: "test@gmail.com", password: "test123"};
 
     const result = await firstValueFrom(client.send({cmd: "create_user"}, data));
+    console.log(result);
 
     expect(result.success).toEqual(true);
     expect(result.data).toHaveProperty('id');
@@ -154,4 +155,75 @@ describe('AppController (e2e)', () => {
     }
   })
 
-});
+  it('Should get all users in db', async () => {
+    const users = [
+      {name: "test10", email: "test10@gmail.com", password: "test10123"},
+      {name: "test11", email: "test11@gmail.com", password: "test11123"},
+      {name: "test12", email: "test12@gmail.com", password: "test12123"},
+      {name: "test13", email: "test13@gmail.com", password: "test13123"}
+    ]
+
+    for (let i = 0; i < users.length; i++) {
+      const user = users[i];
+      await firstValueFrom(client.send({cmd: "create_user"}, user));
+    }
+
+    const usersFound = await firstValueFrom(client.send({cmd: "get_all_users"}, {}))
+
+    expect(usersFound.success).toEqual(true);
+    expect(usersFound.message).toEqual("Usuarios recuperados exitosamente");
+    expect(usersFound.data).toEqual(expect.arrayContaining([
+      expect.objectContaining(users[0]),
+      expect.objectContaining(users[1]),
+      expect.objectContaining(users[2]),
+      expect.objectContaining(users[3]),
+    ]));
+  })
+
+  it('Should update a user by id', async () => {
+    const user = {name: "test20", email: "test20@gmail.com", password: "test20123"};
+    const userSaved = await firstValueFrom(client.send({cmd: "create_user"}, user));
+
+    const userUpdated = await firstValueFrom(client.send({cmd: "update_user"}, {id: userSaved.data.id, data: {name: "test21"}}));
+    const userFound = await firstValueFrom(client.send({cmd: "get_user_by_id"}, userSaved.data.id));
+
+    expect(userUpdated.success).toEqual(true);
+    expect(userUpdated.message).toEqual("Usuario actualizado exitosamente");
+    expect(userFound.name).toEqual("test21");
+  })
+
+  it('Should throw a error when the user doesn´t exist to update a user', async () => {
+    const id = "a0aaaa99-9a0a-4aa8-aa6a-6aa9aa293a22";
+
+    try {
+      await firstValueFrom(client.send({cmd: "update_user"}, {id, data: {name: "usertest"}})); 
+      fail("El update de un usuario en base al id no lanzó un error como se esperaba");
+    } catch (err) {
+      expect(err.success).toEqual(false);
+      expect(err.message).toEqual("Usuario no encontrado"); 
+    }
+  })
+
+  it('Should delete a user by id', async () => {
+    const user = {name: "test30", email: "test30@gmail.com", password: "test30123"};
+    const userSaved = await firstValueFrom(client.send({cmd: "create_user"}, user));
+
+    const userDeleted = await firstValueFrom(client.send({cmd: "delete_user"}, userSaved.data.id));
+
+    expect(userDeleted.success).toEqual(true);
+    expect(userDeleted.message).toEqual("Usuario eliminado exitosamente");
+  })
+
+  it('Should throw a error when the user doesn´t exist to delete a user', async () => {
+    const id = "a0aaaa99-9a0a-4aa8-aa6a-6aa9aa293a22";
+
+    try {
+      await firstValueFrom(client.send({cmd: "delete_user"}, id));
+      fail("El delete de un usuario en base al id no lanzó un error como se esperaba");
+    } catch (err) {
+      expect(err.success).toEqual(false);
+      expect(err.message).toEqual("Usuario no encontrado");
+    }
+  })
+
+})

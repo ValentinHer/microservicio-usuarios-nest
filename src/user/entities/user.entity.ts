@@ -1,4 +1,4 @@
-import { Column, Entity, PrimaryGeneratedColumn, Unique } from "typeorm";
+import { Column, CreateDateColumn, DeleteDateColumn, Entity, PrimaryGeneratedColumn, Unique, UpdateDateColumn } from "typeorm";
 
 @Entity()
 export class User {
@@ -16,6 +16,15 @@ export class User {
     })
     password: string;
 
-    @Column({ default: true })
+    @Column({ name: "is_active", default: true })
     isActive: boolean;
+
+    @CreateDateColumn({name: "created_at"})
+    createdAt: string;
+
+    @UpdateDateColumn({name:"updated_at"})
+    updatedAt: string;
+
+    @DeleteDateColumn({name: "deleted_at"})
+    deletedAt: string;
 }

@@ -1,8 +1,8 @@
 import { Controller, ValidationPipe } from '@nestjs/common';
 import { UserService } from './user.service';
 import { MessagePattern, Payload, RpcException } from '@nestjs/microservices';
-import { User } from './entities/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 @Controller()
 export class UserController {
@@ -33,18 +33,18 @@ export class UserController {
   }
 
   @MessagePattern({cmd: "get_all_users"})
-  async getAllUsers(email: string) {
-    return await this.userService.findByEmail(email);
+  async getAllUsers() {
+    return await this.userService.getAll();
   }
 
   @MessagePattern({cmd: "update_user"})
-  async updateUser(data: User) {
-    return await this.userService.create(data);
+  async updateUser({id, data}: {id: string, data: UpdateUserDto}) {
+    return await this.userService.updateUser(id, data);
   }
 
   @MessagePattern({cmd: "delete_user"})
-  async deleteUser(data: User) {
-    return await this.userService.create(data);
+  async deleteUser(id: string) {
+    return await this.userService.delete(id);
   }
 
 }
