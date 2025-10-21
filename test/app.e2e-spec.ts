@@ -7,7 +7,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from '../src/user/entities/user.entity';
 import { firstValueFrom } from "rxjs";
 
-describe('AppController (e2e)', () => {
+describe('UserController (e2e)', () => {
   let app: INestMicroservice;
   let client: ClientProxy;
   let container: StartedPostgreSqlContainer;
@@ -65,14 +65,13 @@ describe('AppController (e2e)', () => {
   afterAll(async () => {
     if (client) await client.close();
     if (app) await app.close();
-    if (container) await container.stop()
+    if (container) await container.stop();
   })
 
   it('Should create a user', async () => {
     const data = {name: "test", email: "test@gmail.com", password: "test123"};
 
     const result = await firstValueFrom(client.send({cmd: "create_user"}, data));
-    console.log(result);
 
     expect(result.success).toEqual(true);
     expect(result.data).toHaveProperty('id');
@@ -95,7 +94,7 @@ describe('AppController (e2e)', () => {
       )
     }
 
-  })
+  });
 
   it('Should throw a error when the email already exists', async () => {
     const data = {name: "test", email: "test@gmail.com", password: "test123"};
@@ -118,7 +117,7 @@ describe('AppController (e2e)', () => {
 
     expect(user.id).toEqual(result.data.id);
     expect(user.email).toEqual(data.email);
-  })
+  });
 
   it('Should throw a error when the user doesn´t exist by id', async () => {
     const id = "a0aaaa99-9a0a-4aa8-aa6a-6aa9aa293a22";
@@ -130,7 +129,7 @@ describe('AppController (e2e)', () => {
       expect(err.success).toEqual(false);
       expect(err.message).toEqual('Usuario no encontrado');
     }
-  })
+  });
 
   it('Should retrieve a user by email', async() => {
     const data = {name: "testthree", email: "testthree@gmail.com", password: "testthree123"};
@@ -141,7 +140,7 @@ describe('AppController (e2e)', () => {
 
     expect(user.id).toEqual(result.data.id);
     expect(user.email).toEqual(data.email);
-  })
+  });
 
   it('Should throw a error when the user doesn´t exist by email', async () => {
     const email = "testtest@gmail.com";
@@ -153,7 +152,7 @@ describe('AppController (e2e)', () => {
       expect(err.success).toEqual(false);
       expect(err.message).toEqual('Usuario no encontrado');
     }
-  })
+  });
 
   it('Should get all users in db', async () => {
     const users = [
@@ -173,12 +172,12 @@ describe('AppController (e2e)', () => {
     expect(usersFound.success).toEqual(true);
     expect(usersFound.message).toEqual("Usuarios recuperados exitosamente");
     expect(usersFound.data).toEqual(expect.arrayContaining([
-      expect.objectContaining(users[0]),
-      expect.objectContaining(users[1]),
-      expect.objectContaining(users[2]),
-      expect.objectContaining(users[3]),
+      expect.objectContaining({name: users[0].name, email: users[0].email}),
+      expect.objectContaining({name: users[1].name, email: users[1].email}),
+      expect.objectContaining({name: users[2].name, email: users[2].email}),
+      expect.objectContaining({name: users[3].name, email: users[3].email}),
     ]));
-  })
+  });
 
   it('Should update a user by id', async () => {
     const user = {name: "test20", email: "test20@gmail.com", password: "test20123"};
@@ -190,7 +189,7 @@ describe('AppController (e2e)', () => {
     expect(userUpdated.success).toEqual(true);
     expect(userUpdated.message).toEqual("Usuario actualizado exitosamente");
     expect(userFound.name).toEqual("test21");
-  })
+  });
 
   it('Should throw a error when the user doesn´t exist to update a user', async () => {
     const id = "a0aaaa99-9a0a-4aa8-aa6a-6aa9aa293a22";
@@ -202,7 +201,7 @@ describe('AppController (e2e)', () => {
       expect(err.success).toEqual(false);
       expect(err.message).toEqual("Usuario no encontrado"); 
     }
-  })
+  });
 
   it('Should delete a user by id', async () => {
     const user = {name: "test30", email: "test30@gmail.com", password: "test30123"};
@@ -212,7 +211,7 @@ describe('AppController (e2e)', () => {
 
     expect(userDeleted.success).toEqual(true);
     expect(userDeleted.message).toEqual("Usuario eliminado exitosamente");
-  })
+  });
 
   it('Should throw a error when the user doesn´t exist to delete a user', async () => {
     const id = "a0aaaa99-9a0a-4aa8-aa6a-6aa9aa293a22";
@@ -224,6 +223,6 @@ describe('AppController (e2e)', () => {
       expect(err.success).toEqual(false);
       expect(err.message).toEqual("Usuario no encontrado");
     }
-  })
+  });
 
 })

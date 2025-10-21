@@ -1,19 +1,34 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, OnModuleInit } from '@nestjs/common';
 import { User } from './entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { RpcException } from '@nestjs/microservices';
 import { UpdateUserDto } from './dto/update-user.dto';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
-export class UserService {
+export class UserService implements OnModuleInit {
   constructor(@InjectRepository(User) private userRepository: Repository<User>){}
+
+  onModuleInit() {
+    this.userRepository.insert([
+      {
+        name: "test100",
+        email: "test100@gmail.com",
+        password: "test100123"
+      }
+    ]);
+  }
 
   async create(user: CreateUserDto) {
     const existUser = await this.userRepository.existsBy({email: user.email});
     if(existUser) throw new RpcException({success: false, message: "El email ya se encuentra en uso"});
 
+    const salt = await bcrypt.genSalt(10);
+    const passwordHashed = await bcrypt.hash(user.password, salt);
+
+    user.password = passwordHashed;
     const userSaved = await this.userRepository.save(user);
 
     if(!userSaved) throw new RpcException({success: false, message: "Error al guardar el usuario"});

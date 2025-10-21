@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { User } from './user/entities/user.entity';
+import { User } from '../user/entities/user.entity';
 
 @Module({
     imports: [
@@ -12,7 +12,7 @@ import { User } from './user/entities/user.entity';
           password: process.env.DB_PASSWORD || "firstservice",
           database: process.env.DB_NAME || "db_first_service",
           entities: [User],
-          synchronize: true
+          synchronize: true,
         }),
     ]
 })
