@@ -1,5 +1,5 @@
 # Build del proyecto
-FROM node:18-alpine as builder
+FROM node:21-alpine as builder
 
 WORKDIR /app
 
@@ -11,7 +11,7 @@ COPY . .
 RUN npm run build
 
 # Exponer el puerto en producción
-FROM node:18-alpine
+FROM node:21-alpine
 
 WORKDIR /app
 
